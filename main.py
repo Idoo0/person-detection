@@ -18,7 +18,7 @@ def RGB(event, x, y, flags, param):
 
 cv2.namedWindow('RGB')
 cv2.setMouseCallback('RGB', RGB)
-cap=cv2.VideoCapture(0)
+cap=cv2.VideoCapture("vidp.mp4")
 
 
 my_file = open("coco.txt", "r")
@@ -49,10 +49,10 @@ while True:
    
 
     results=model.predict(frame)
- #   print(results)
+#   print(results)
     a=results[0].boxes.data
     px=pd.DataFrame(a).astype("float")
-#    print(px)
+#   print(px)
     list=[]
    
     for index,row in px.iterrows():
@@ -76,11 +76,34 @@ while True:
         cx=int(x3+x4)//2
         cy=int(y3+y4)//2
         cv2.circle(frame,(cx,cy),4,(255,0,255),-1)
-        
-    cv2.line(frame,(3,194),(1018,194),(0,255,0),2)
-    cv2.line(frame,(5,220),(1019,220),(0,255,255),2)
-   
-
+        if cy1<(cy+offset) and cy1>(cy-offset):
+            cv2.rectangle(frame,(x3,y3), (x4,y4), (0,0,255), 2)
+            cvzone.putTextRect(frame, f'{id}', (x3,y3),1,2)
+            persondown[id]=(cx,cy)
+        if id in persondown:
+            if cy2<(cy+offset) and cy2>(cy-offset):
+                cv2.rectangle(frame,(x3,y3), (x4,y4), (0,255,255), 2)
+                cvzone.putTextRect(frame, f'{id}', (x3,y3),1,2)
+                if counter1.count(id)==0:
+                    counter1.append(id)
+        if cy2<(cy+offset) and cy2>(cy-offset):
+            cv2.rectangle(frame,(x3,y3), (x4,y4), (0,255,255), 2)
+            cvzone.putTextRect(frame, f'{id}', (x3,y3),1,2)
+            personup[id]=(cx,cy)
+        if id in personup:
+            if cy1<(cy+offset) and cy1>(cy-offset):
+                cv2.rectangle(frame,(x3,y3), (x4,y4), (0,0,255), 2)
+                cvzone.putTextRect(frame, f'{id}', (x3,y3),1,2)
+                if counter2.count(id)==0:
+                    counter2.append(id)
+    
+    cv2.line(frame,(3,cy1),(1018,cy1),(0,255,0),2)
+    cv2.line(frame,(5,cy2),(1019,cy2),(0,255,255),2)
+    down=(len(counter1))
+    cvzone.putTextRect(frame,f'Down = {down}', (50,60),2,2)
+    up=(len(counter2))
+    cvzone.putTextRect(frame,f'Up = {up}', (50,120),2,2)
+    print(persondown)
     cv2.imshow("RGB", frame)
     if cv2.waitKey(1)&0xFF==27:
         break
